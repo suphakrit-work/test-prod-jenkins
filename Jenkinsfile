@@ -1,28 +1,43 @@
-def app
-
 pipeline {
+    environment {
+        destinationHost = 'ubuntu-22-04@192.168.64.5'
+        destinationUserPath = '/home/ubuntu-22-04'
+        sshCredential = 'prod-credential'
+        registry = 'suphakrit/my-todoapp'
+        registryCredential = 'docker-key'
+        dockerImage = ''
+    }
     agent any
 
     stages {
         stage('Build image') {
             steps {
-                app = docker.build('suphakrit/my-todoapp')
+                script {
+                    dockerImage = docker.build registry + ':latest'
+                }
             }
         }
         stage('Push image to registry') {
             steps {
-                docker.withRegistry('https://hub.docker.com', 'docker-key') {
-                    app.push('suphakrit/my-todoapp:latest')
+                script {
+                    docker.withRegistry('', registryCredential) {
+                        dockerImage.push()
+                    }
                 }
             }
         }
-        stage('Deploy') {
+        stage('Deployment') {
             steps {
-                sshagent(['prod-credential']) {
-                    sh 'scp -o StrictHostKeyChecking=no docker-compose.yml ubuntu-22-04@192.168.64.5:/home/ubuntu-22-04/docker-compose.yml'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu-22-04@192.168.64.5 bash /home/ubuntu-22-04/docker-compose.yml down'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu-22-04@192.168.64.5 bash /home/ubuntu-22-04/docker-compose.yml up -d'
+                sshagent([sshCredential]) {
+                    sh "scp -o StrictHostKeyChecking=no docker-compose.yml $destinationHost:$destinationUserPath/docker-compose.yml"
+                    sh "ssh -o StrictHostKeyChecking=no $destinationHost bash $destinationUserPath/docker-compose.yml down"
+                    sh "ssh -o StrictHostKeyChecking=no $destinationHost bash $destinationUserPath/docker-compose.yml up -d"
                 }
+            }
+        }
+        stage('Cleaning up') {
+            steps {
+                sh "docker rmi $registry:latest"
             }
         }
     }

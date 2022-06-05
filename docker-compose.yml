@@ -13,11 +13,11 @@ services:
          - mysql
 
    mysql:
-       image: mysql:5.7
-       volumes:
-          - todo-mysql-data:/var/lib/mysql
-       environment:
-          MYSQL_ROOT_PASSWORD: secret
-          MYSQL_DATABASE: todos
+      image: ubuntu/mysql:8.0-22.04_beta
+      volumes:
+         - todo-mysql-data:/var/lib/mysql
+      environment:
+         MYSQL_ROOT_PASSWORD: secret
+         MYSQL_DATABASE: todos
 volumes:
    todo-mysql-data:

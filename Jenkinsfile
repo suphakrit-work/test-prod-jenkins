@@ -35,8 +35,9 @@ pipeline {
             steps {
                 sshagent([sshCredential]) {
                     sh "scp -o StrictHostKeyChecking=no docker-compose.yml $destinationHost:$destinationUserPath/docker-compose.yml"
-                    sh "ssh -o StrictHostKeyChecking=no $destinationHost $destinationUserPath/docker-compose down"
-                    sh "ssh -o StrictHostKeyChecking=no $destinationHost $destinationUserPath/docker-compose up -d"
+                    sh "ssh -o StrictHostKeyChecking=no $destinationHost pwd"
+                    sh "ssh -o StrictHostKeyChecking=no $destinationHost docker-compose down"
+                    sh "ssh -o StrictHostKeyChecking=no $destinationHost docker-compose up -d"
                 }
             }
         }

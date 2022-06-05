@@ -10,6 +10,11 @@ pipeline {
     agent any
 
     stages {
+        stage('Cleaning up image dangling') {
+            steps {
+                sh 'docker rmi $(docker images -q -f dangling=true)'
+            }
+        }
         stage('Build image') {
             steps {
                 script {
@@ -39,6 +44,7 @@ pipeline {
         stage('Cleaning up') {
             steps {
                 sh "docker rmi $registry:latest"
+                sh 'docker rmi $(docker images -q -f dangling=true)'
             }
         }
     }

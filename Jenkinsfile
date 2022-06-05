@@ -1,14 +1,19 @@
+def app
+
 pipeline {
     agent any
-    def app
 
     stages {
         stage('Build image') {
-            app = docker.build('suphakrit/my-todoapp')
+            steps {
+                app = docker.build('suphakrit/my-todoapp')
+            }
         }
         stage('Push image to registry') {
-            docker.withRegistry('https://hub.docker.com', 'docker-key') {
-                app.push('latest')
+            steps {
+                docker.withRegistry('https://hub.docker.com', 'docker-key') {
+                    app.push('suphakrit/my-todoapp:latest')
+                }
             }
         }
         stage('Deploy') {

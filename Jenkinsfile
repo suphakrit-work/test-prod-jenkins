@@ -10,6 +10,11 @@ pipeline {
     agent any
 
     stages {
+        stage('Cleaning up old build') {
+            steps {
+                sh "docker rmi $registry:latest"
+            }
+        }
         stage('Build image') {
             steps {
                 script {
@@ -30,8 +35,8 @@ pipeline {
             steps {
                 sshagent([sshCredential]) {
                     sh "scp -o StrictHostKeyChecking=no docker-compose.yml $destinationHost:$destinationUserPath/docker-compose.yml"
-                    sh "ssh -o StrictHostKeyChecking=no $destinationHost bash $destinationUserPath/docker-compose.yml down"
-                    sh "ssh -o StrictHostKeyChecking=no $destinationHost bash $destinationUserPath/docker-compose.yml up -d"
+                    sh "ssh -o StrictHostKeyChecking=no $destinationHost bash $destinationUserPath/docker-compose down"
+                    sh "ssh -o StrictHostKeyChecking=no $destinationHost bash $destinationUserPath/docker-compose up -d"
                 }
             }
         }

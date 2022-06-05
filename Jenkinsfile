@@ -10,11 +10,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Cleaning up old build') {
-            steps {
-                sh "docker rmi $registry:latest"
-            }
-        }
         stage('Build image') {
             steps {
                 script {
